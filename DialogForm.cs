@@ -42,7 +42,7 @@ namespace WF_DB_Climbing
             panel = new()
             {
                 Dock = DockStyle.Top,
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.Fixed3D
             };
 
             ok = new() 
