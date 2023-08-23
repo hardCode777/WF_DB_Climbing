@@ -9,13 +9,13 @@ using System.Windows.Forms;
 
 namespace WF_DB_Climbing
 {
-    class TabContent : Panel
-    { 
-        //
-        DataTable table;
-        //SqlDataAdapter adapter;
-        DataGridView grid;
-        string tableName;
+    abstract class TabContent : Panel
+    {
+       protected DialogForm dialogForm = null; 
+       DataTable table;
+       DataGridView grid;
+       protected DataRow dataRow; 
+       string tableName;
 
         public TabContent( string tableName, DataTable table)
         {
@@ -33,36 +33,37 @@ namespace WF_DB_Climbing
             //adapter.Fill(table);
             grid.DataSource = table;
             this.tableName = tableName;
-            
         }
         public void Insert()
         {
-            DialogForm dialogForm = null;
-            switch (tableName)
-            {
-                case "Country":
-                    dialogForm = new ContriesDialog();
-                    break;
-                case "District":
-                    dialogForm = new DistrictDialog(Form1.tableSet.Tables[(int)TablesList.Country]);
-                    break;
-            }
+            //dialogForm = null;
+            //switch (tableName)
+            //{
+            //    case "Country":
+            //        dialogForm = new ContriesDialog();
+            //        break;
+            //    case "District":
+            //        dialogForm = new DistrictDialog(Form1.tableSet.Tables[(int)TablesList.Country]);
+            //        break;
+            //}
+            ClearDialogData();
             if (table != null && dialogForm.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
-                        DataRow row = table.NewRow();
-                    switch (tableName)
-                    {
-                        case "Country":
-                            row["Name"] = ((ContriesDialog)dialogForm).CountryName;
-                            break;
-                        case "District":
-                            row["Name"] = ((DistrictDialog)dialogForm).DistrictName;
-                            row["CountryId"] = ((DistrictDialog)dialogForm).CountryId;
-                            break;
-                    }
-                        table.Rows.Add(row);
+                    dataRow = table.NewRow();
+                    GetDialogData();
+                    //switch (tableName)
+                    //{
+                    //    case "Country":
+                    //        row["Name"] = ((ContriesDialog)dialogForm).CountryName;
+                    //        break;
+                    //    case "District":
+                    //        row["Name"] = ((DistrictDialog)dialogForm).DistrictName;
+                    //        row["CountryId"] = ((DistrictDialog)dialogForm).CountryId;
+                    //        break;
+                    //}
+                    table.Rows.Add(dataRow);
                         grid.Refresh();
                     }
                     catch (Exception ex)
@@ -107,36 +108,38 @@ namespace WF_DB_Climbing
                 try
                 {
                     int selectedIndex = grid.SelectedRows[0].Index;
-                    DataRow? selectedRow = (grid?.Rows[selectedIndex]?.DataBoundItem as DataRowView)?.Row;
-                    if (selectedRow != null)
+                    dataRow = (grid?.Rows[selectedIndex]?.DataBoundItem as DataRowView)?.Row;
+                    if (dataRow != null)
                     {
-                        DialogForm dialogForm = null;
-                        switch (tableName)
-                        {
-                            case "Country":
-                                dialogForm = new ContriesDialog();
-                                ((ContriesDialog)dialogForm).CountryName = selectedRow["Name"].ToString();
-                                break;
-                            case "District":
-                                dialogForm = new DistrictDialog(Form1.tableSet.Tables[(int)TablesList.Country]);
-                                ((DistrictDialog)dialogForm).DistrictName = selectedRow["Name"].ToString();
-                                ((DistrictDialog)dialogForm).CountryId = int.Parse(selectedRow["CountryId"].ToString());
-                                break;
-                        }
+                        SetDialogData();
+                        //DialogForm dialogForm = null;
+                        //switch (tableName)
+                        //{
+                        //    case "Country":
+                        //        dialogForm = new ContriesDialog();
+                        //        ((ContriesDialog)dialogForm).CountryName = ["Name"].ToString();
+                        //        break;
+                        //    case "District":
+                        //        dialogForm = new DistrictDialog(Form1.tableSet.Tables[(int)TablesList.Country]);
+                        //        ((DistrictDialog)dialogForm).DistrictName = selectedRow["Name"].ToString();
+                        //        ((DistrictDialog)dialogForm).CountryId = int.Parse(selectedRow["CountryId"].ToString());
+                        //        break;
+                        //}
                         if (table != null && dialogForm.ShowDialog() == DialogResult.OK)
                         {
                             try
-                            {   
-                                switch (tableName)
-                                {
-                                    case "Country":
-                                        selectedRow["Name"] = ((ContriesDialog)dialogForm).CountryName;
-                                        break;
-                                    case "District":
-                                        selectedRow["Name"] = ((DistrictDialog)dialogForm).DistrictName;
-                                        selectedRow["CountryId"] = ((DistrictDialog)dialogForm).CountryId;
-                                        break;
-                                }
+                            {
+                                GetDialogData();
+                                //switch (tableName)
+                                //{
+                                //    case "Country":
+                                //        selectedRow["Name"] = ((ContriesDialog)dialogForm).CountryName;
+                                //        break;
+                                //    case "District":
+                                //        selectedRow["Name"] = ((DistrictDialog)dialogForm).DistrictName;
+                                //        selectedRow["CountryId"] = ((DistrictDialog)dialogForm).CountryId;
+                                //        break;
+                                //}
                                 
                                 grid.Refresh();
                             }
@@ -161,5 +164,9 @@ namespace WF_DB_Climbing
                 }
             }
         }
+        // abstract classes
+        protected abstract void GetDialogData(); 
+        protected abstract void SetDialogData(); 
+        protected abstract void ClearDialogData(); 
     }
 }

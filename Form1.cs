@@ -246,9 +246,18 @@ namespace WF_DB_Climbing
         {
             if (!tabControl.TabPages.ContainsKey(tabKey))
             {
+                TabContent tabContent = null;
                 tabControl.TabPages.Add(tabKey, tabKey);
-                TabContent content = new TabContent(tabKey, dataTable);
-                tabControl.TabPages[tabKey].Controls.Add(content);
+                switch (tabKey)
+                {
+                    case "Country":
+                        tabContent = new CountryContent(tabKey, dataTable);
+                        break;
+                    case "District":
+                        tabContent = new DistrictContent(tabKey, dataTable, tableSet.Tables[(int)TablesList.District]);
+                        break;
+                }
+                tabControl.TabPages[tabKey].Controls.Add(tabContent);
             }
                 tabControl.SelectTab(tabControl.TabPages[tabKey]);
         }
